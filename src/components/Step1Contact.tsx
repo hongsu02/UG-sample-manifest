@@ -35,8 +35,8 @@ export default function Step1Contact({ payload, setPayload }: Props) {
         }));
 
         // validation
-        if (val && !/^ANQ\d+$/.test(val)) {
-            setQuotationError("Quotation ID must start with 'ANQ' followed by digits.");
+        if (val && !/^ANQ\d{8}$/.test(val)) {
+            setQuotationError("Quotation No. must be 'ANQ' followed by exactly 8 digits.");
         } else {
             setQuotationError('');
         }
@@ -62,11 +62,12 @@ export default function Step1Contact({ payload, setPayload }: Props) {
 
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Quotation ID *</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Quotation No. *</label>
+                    <p className="text-xs font-semibold text-red-600 mb-2">Enter the issued Quotation No.</p>
                     <input
                         type="text"
                         className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-[#0A3D91] focus:border-[#0A3D91] ${quotationError ? 'border-red-500 ring-red-500' : 'border-slate-300'}`}
-                        placeholder="e.g. ANQ12345"
+                        placeholder="e.g. ANQ12345678"
                         value={payload.order.quotation_id || ''}
                         onChange={handleQuotationChange}
                     />

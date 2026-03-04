@@ -35,8 +35,8 @@ export default function TemplateWorkflow() {
         setStep1Info(prev => ({ ...prev, [field]: val }));
 
         if (field === 'quotation_id') {
-            if (val && !/^ANQ\d+$/.test(val)) {
-                setQuotationError("Quotation ID must start with 'ANQ' followed by digits.");
+            if (val && !/^ANQ\d{8}$/.test(val)) {
+                setQuotationError("Quotation No. must be 'ANQ' followed by exactly 8 digits.");
             } else {
                 setQuotationError('');
             }
@@ -45,7 +45,7 @@ export default function TemplateWorkflow() {
 
     const handleGenerate = async () => {
         if (!step1Info.quotation_id || quotationError) {
-            alert('Please enter a valid Quotation ID starting with ANQ.');
+            alert('Please enter a valid Quotation No. starting with ANQ and followed by exactly 8 digits.');
             return;
         }
         if (!step1Info.payment_method) {
@@ -161,8 +161,9 @@ export default function TemplateWorkflow() {
 
                             <div className="grid md:grid-cols-2 gap-4 border-b border-slate-100 pb-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Quotation ID *</label>
-                                    <input type="text" className={`w-full px-3 py-2 border rounded-lg ${quotationError ? 'border-red-500 ring-red-500' : 'border-slate-300'}`} placeholder="ANQ12345" value={step1Info.quotation_id} onChange={e => handleStep1Change('quotation_id', e.target.value)} />
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Quotation No. *</label>
+                                    <p className="text-xs font-semibold text-red-600 mb-2">Enter the issued Quotation No.</p>
+                                    <input type="text" className={`w-full px-3 py-2 border rounded-lg ${quotationError ? 'border-red-500 ring-red-500' : 'border-slate-300'}`} placeholder="ANQ12345678" value={step1Info.quotation_id} onChange={e => handleStep1Change('quotation_id', e.target.value)} />
                                     {quotationError && <p className="mt-1 text-xs text-red-600">{quotationError}</p>}
                                 </div>
                                 <div>
