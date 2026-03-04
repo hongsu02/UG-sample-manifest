@@ -57,9 +57,9 @@ export default function AdminDashboard() {
             OrderNo: o.order_no,
             QuotationID: o.quotation_id,
             Status: o.status,
-            ClientName: (o as any).profiles?.full_name || '',
+            ClientName: `${o.contact_info?.firstName || ''} ${o.contact_info?.lastName || ''}`.trim() || (o as any).profiles?.full_name || '',
             UserEmail: (o as any).profiles?.email,
-            Organization: (o as any).profiles?.organization,
+            Organization: o.contact_info?.institution || (o as any).profiles?.organization,
             PaymentMethod: o.payment_method,
             Date: new Date(o.updated_at).toLocaleDateString()
         }));
@@ -186,7 +186,9 @@ export default function AdminDashboard() {
                                                 </Link>
                                             </td>
                                             <td className="px-4 py-3">{order.quotation_id}</td>
-                                            <td className="px-4 py-3 font-medium text-slate-800">{(order as any).profiles?.full_name || '-'}</td>
+                                            <td className="px-4 py-3 font-medium text-slate-800">
+                                                {`${order.contact_info?.firstName || ''} ${order.contact_info?.lastName || ''}`.trim() || (order as any).profiles?.full_name || '-'}
+                                            </td>
                                             <td className="px-4 py-3">{(order as any).profiles?.email}</td>
                                             <td className="px-4 py-3">
                                                 <span className={`px-2 py-1 rounded text-xs font-medium ${order.status === 'Submitted' ? 'bg-green-100 text-green-700' :
