@@ -150,8 +150,8 @@ export default function AdminOrderDetail() {
                     <h3 className="font-bold text-[#0A3D91] border-b pb-2 mb-4">Order Status</h3>
                     <div className="space-y-2 text-sm text-slate-700">
                         <p><strong>Status:</strong> <span className={`px-2 py-0.5 rounded text-xs ml-2 ${order.status === 'Submitted' ? 'bg-green-100 text-green-700' :
-                                order.status === 'Registered' ? 'bg-indigo-100 text-indigo-700' :
-                                    'bg-slate-100'
+                            order.status === 'Registered' ? 'bg-indigo-100 text-indigo-700' :
+                                'bg-slate-100'
                             }`}>{order.status}</span></p>
                         <p><strong>Payment Method:</strong> {order.payment_method}</p>
                         <p><strong>Last Updated:</strong> {new Date(order.updated_at).toLocaleString()}</p>
@@ -192,7 +192,7 @@ export default function AdminOrderDetail() {
                                 <th className="px-3 py-2 border-r border-b border-slate-300 font-bold sticky left-0 bg-slate-100 z-20 shadow-r">Sample ID</th>
                                 <th className="px-3 py-2 border-r border-b border-slate-300 font-medium">Container ID</th>
                                 <th className="px-3 py-2 border-r border-b border-slate-300 font-medium">Well ID</th>
-                                <th className="px-3 py-2 border-r border-b border-slate-300 font-medium">Pulled No</th>
+                                <th className="px-3 py-2 border-r border-b border-slate-300 font-medium">Pooled No.</th>
                                 <th className="px-3 py-2 border-r border-b border-slate-300 font-medium">Sample Type</th>
                                 <th className="px-3 py-2 border-r border-b border-slate-300 font-medium">Vol (uL)</th>
                                 <th className="px-3 py-2 border-r border-b border-slate-300 font-medium">Conc (ng/uL)</th>

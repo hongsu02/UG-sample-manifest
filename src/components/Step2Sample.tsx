@@ -33,28 +33,6 @@ export default function Step2Sample({ payload, setPayload }: Props) {
 
     const [numRowsToAdd, setNumRowsToAdd] = useState(1);
 
-    const updateRow = (index: number, field: keyof Sample, value: string) => {
-        const newRows = [...rows];
-        newRows[index] = { ...newRows[index], [field]: value };
-
-        // Auto clear conditionals
-        if (field === 'container_type' && !['Strip', '96 well'].includes(value)) {
-            newRows[index].well_id = '';
-        }
-        if (field === 'pooling' && value !== 'Pooled') {
-            newRows[index].pulled_no = '';
-        }
-        if (field === 'sample_type') {
-            if (['Converted UG Library', 'UG Library'].includes(value)) {
-                newRows[index].ug_ready = 'Yes';
-            } else {
-                newRows[index].ug_ready = 'No';
-            }
-        }
-
-        setPayload(prev => ({ ...prev, samples: newRows }));
-    };
-
     const addRow = () => {
         const newRows = [...rows];
         for (let i = 0; i < numRowsToAdd; i++) {
@@ -63,10 +41,54 @@ export default function Step2Sample({ payload, setPayload }: Props) {
         setPayload(prev => ({ ...prev, samples: newRows }));
     };
 
-    const removeRow = (index: number) => {
+    const removeRow = (sampleId: string) => {
         if (rows.length === 1) return;
+        // Remove all rows matching this sample_id
+        const newRows = rows.filter(r => r.sample_id !== sampleId);
+        if (newRows.length === 0) newRows.push({ ...INITIAL_ROW, id: generateId() });
+        setPayload(prev => ({ ...prev, samples: newRows }));
+    };
+
+    // Deduplicate logic for the view
+    const uniqueRowsMap = new Map<string, Sample>();
+    const uniqueRowIndices = new Map<string, number[]>(); // Tracks all underlying indices for a given sample_id
+
+    rows.forEach((row, idx) => {
+        const key = row.sample_id || `empty_${idx}`;
+        if (!uniqueRowsMap.has(key)) {
+            uniqueRowsMap.set(key, row);
+            uniqueRowIndices.set(key, [idx]);
+        } else {
+            uniqueRowIndices.get(key)!.push(idx);
+        }
+    });
+
+    const uniqueRows = Array.from(uniqueRowsMap.entries());
+
+    const updateUniqueRow = (sampleIdKey: string, field: keyof Sample, value: string) => {
+        const indices = uniqueRowIndices.get(sampleIdKey) || [];
+        if (indices.length === 0) return;
+
         const newRows = [...rows];
-        newRows.splice(index, 1);
+        indices.forEach(index => {
+            newRows[index] = { ...newRows[index], [field]: value };
+
+            // Auto clear conditionals
+            if (field === 'container_type' && !['Strip', '96 well'].includes(value)) {
+                newRows[index].well_id = '';
+            }
+            if (field === 'pooling' && value !== 'Pooled') {
+                newRows[index].pulled_no = '';
+            }
+            if (field === 'sample_type') {
+                if (['Converted UG Library', 'UG Library'].includes(value)) {
+                    newRows[index].ug_ready = 'Yes';
+                } else {
+                    newRows[index].ug_ready = 'No';
+                }
+            }
+        });
+
         setPayload(prev => ({ ...prev, samples: newRows }));
     };
 
@@ -168,17 +190,17 @@ export default function Step2Sample({ payload, setPayload }: Props) {
     };
 
     // Helper Header Cell component
-    const HeaderCell = ({ title, field, actionType }: { title: string, field: keyof Sample, actionType: 'increment' | 'copy' | 'none' }) => (
+    const HeaderCell = ({ title, field, actionType }: { title: string, field: keyof Sample, actionType: 'increment' | 'copy' | 'all' | 'none' }) => (
         <th className="px-3 py-3 text-left text-xs font-semibold text-white bg-[#0A3D91] whitespace-nowrap border-r border-[#082f70]">
             <div className="flex items-center justify-between gap-2">
                 <span>{title}</span>
                 <div className="flex items-center gap-1">
-                    {actionType === 'increment' && (
+                    {['increment', 'all'].includes(actionType) && (
                         <button type="button" onClick={(e) => { e.preventDefault(); incrementDown(field); }} className="hover:bg-blue-700 p-0.5 rounded text-white" title="Auto-increment (↓)">
                             <ArrowDown size={14} />
                         </button>
                     )}
-                    {actionType === 'copy' && (
+                    {['copy', 'all'].includes(actionType) && (
                         <button type="button" onClick={(e) => { e.preventDefault(); copyDown(field); }} className="hover:bg-blue-700 p-0.5 rounded text-white" title="Copy Row 1 to All (=)">
                             <Equal size={14} />
                         </button>
@@ -218,7 +240,7 @@ export default function Step2Sample({ payload, setPayload }: Props) {
                         <tr>
                             <th className="w-10 bg-[#0A3D91] border-r border-[#082f70]"></th> {/* Row numbers */}
                             <HeaderCell title="Sample ID" field="sample_id" actionType="increment" />
-                            <HeaderCell title="Container ID" field="container_id" actionType="copy" />
+                            <HeaderCell title="Container ID" field="container_id" actionType="all" />
                             <HeaderCell title="Container Type" field="container_type" actionType="copy" />
 
                             <th className="px-3 py-3 text-left text-xs font-semibold text-white bg-[#0A3D91] whitespace-nowrap border-r border-[#082f70]">
@@ -233,7 +255,7 @@ export default function Step2Sample({ payload, setPayload }: Props) {
                             </th>
 
                             <HeaderCell title="Pooling" field="pooling" actionType="copy" />
-                            <HeaderCell title="Pulled No." field="pulled_no" actionType="copy" />
+                            <HeaderCell title="Pooled No." field="pulled_no" actionType="copy" />
                             <HeaderCell title="Species" field="species" actionType="copy" />
                             <HeaderCell title="Sample Type" field="sample_type" actionType="copy" />
                             <HeaderCell title="Conc (ng/ul)" field="conc" actionType="copy" />
@@ -243,27 +265,36 @@ export default function Step2Sample({ payload, setPayload }: Props) {
                             <th className="w-10 bg-[#0A3D91]"></th> {/* Delete */}
                         </tr>
                     </thead>
+
                     <tbody className="divide-y divide-slate-200">
-                        {rows.map((row, idx) => {
+                        {uniqueRows.map(([sampleKey, row], idx) => {
                             const requiresWell = ['Strip', '96 well'].includes(row.container_type);
                             const requiresPulledNo = row.pooling === 'Pooled';
+                            const libraryCount = uniqueRowIndices.get(sampleKey)?.length || 1;
 
                             return (
-                                <tr key={row.id || idx} className={idx === 0 ? "bg-amber-50" : "hover:bg-slate-50"}>
+                                <tr key={sampleKey} className={idx === 0 ? "bg-amber-50" : "hover:bg-slate-50"}>
                                     <td className="px-3 py-2 text-center text-sm font-medium text-slate-500 border-x border-slate-200">
-                                        {idx === 0 ? 'R1' : idx + 1}
+                                        <div className="flex flex-col items-center gap-1">
+                                            <span>{idx === 0 ? 'R1' : idx + 1}</span>
+                                            {libraryCount > 1 && (
+                                                <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full" title={`${libraryCount} sub-libraries`}>
+                                                    x{libraryCount}
+                                                </span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="px-1 py-1 border-r border-slate-200 min-w-[120px]">
                                         <input type="text" className="w-full px-2 py-1.5 text-sm border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded bg-transparent"
-                                            value={row.sample_id} onChange={(e) => updateRow(idx, 'sample_id', e.target.value)} />
+                                            value={row.sample_id} onChange={(e) => updateUniqueRow(sampleKey, 'sample_id', e.target.value)} />
                                     </td>
                                     <td className="px-1 py-1 border-r border-slate-200 min-w-[120px]">
                                         <input type="text" className="w-full px-2 py-1.5 text-sm border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded bg-transparent"
-                                            value={row.container_id} onChange={(e) => updateRow(idx, 'container_id', e.target.value)} />
+                                            value={row.container_id} onChange={(e) => updateUniqueRow(sampleKey, 'container_id', e.target.value)} />
                                     </td>
                                     <td className="px-1 py-1 border-r border-slate-200 min-w-[140px]">
                                         <select className="w-full px-2 py-1.5 text-sm border border-transparent focus:border-blue-400 rounded bg-transparent"
-                                            value={row.container_type} onChange={(e) => updateRow(idx, 'container_type', e.target.value)}>
+                                            value={row.container_type} onChange={(e) => updateUniqueRow(sampleKey, 'container_type', e.target.value)}>
                                             <option value="Tube">Tube</option>
                                             <option value="Strip">Strip</option>
                                             <option value="96 well">96 well</option>
@@ -271,26 +302,26 @@ export default function Step2Sample({ payload, setPayload }: Props) {
                                     </td>
                                     <td className="px-1 py-1 border-r border-slate-200 min-w-[100px]">
                                         <input type="text" disabled={!requiresWell} className="w-full px-2 py-1.5 text-sm border border-transparent focus:border-blue-400 rounded bg-transparent disabled:bg-slate-100 disabled:cursor-not-allowed"
-                                            value={row.well_id} onChange={(e) => updateRow(idx, 'well_id', e.target.value)} placeholder={requiresWell ? "e.g. A1" : ""} />
+                                            value={row.well_id} onChange={(e) => updateUniqueRow(sampleKey, 'well_id', e.target.value)} placeholder={requiresWell ? "e.g. A1" : ""} />
                                     </td>
                                     <td className="px-1 py-1 border-r border-slate-200 min-w-[120px]">
                                         <select className="w-full px-2 py-1.5 text-sm border border-transparent focus:border-blue-400 rounded bg-transparent"
-                                            value={row.pooling} onChange={(e) => updateRow(idx, 'pooling', e.target.value)}>
+                                            value={row.pooling} onChange={(e) => updateUniqueRow(sampleKey, 'pooling', e.target.value)}>
                                             <option value="Individual">Individual</option>
                                             <option value="Pooled">Pooled</option>
                                         </select>
                                     </td>
                                     <td className="px-1 py-1 border-r border-slate-200 min-w-[100px]">
                                         <input type="number" disabled={!requiresPulledNo} className="w-full px-2 py-1.5 text-sm border border-transparent focus:border-blue-400 rounded bg-transparent disabled:bg-slate-100 disabled:cursor-not-allowed"
-                                            value={row.pulled_no} onChange={(e) => updateRow(idx, 'pulled_no', e.target.value)} min="2" />
+                                            value={row.pulled_no} onChange={(e) => updateUniqueRow(sampleKey, 'pulled_no', e.target.value)} min="2" />
                                     </td>
                                     <td className="px-1 py-1 border-r border-slate-200 min-w-[120px]">
                                         <input type="text" className="w-full px-2 py-1.5 text-sm border border-transparent focus:border-blue-400 rounded bg-transparent"
-                                            value={row.species} onChange={(e) => updateRow(idx, 'species', e.target.value)} />
+                                            value={row.species} onChange={(e) => updateUniqueRow(sampleKey, 'species', e.target.value)} />
                                     </td>
                                     <td className="px-1 py-1 border-r border-slate-200 min-w-[120px]">
                                         <select className="w-full px-2 py-1.5 text-sm border border-transparent focus:border-blue-400 rounded bg-transparent"
-                                            value={row.sample_type} onChange={(e) => updateRow(idx, 'sample_type', e.target.value)}>
+                                            value={row.sample_type} onChange={(e) => updateUniqueRow(sampleKey, 'sample_type', e.target.value)}>
                                             <option value="gDNA">gDNA</option>
                                             <option value="cfDNA">cfDNA</option>
                                             <option value="Non-Converted Library">Non-Converted Library</option>
@@ -300,25 +331,25 @@ export default function Step2Sample({ payload, setPayload }: Props) {
                                     </td>
                                     <td className="px-1 py-1 border-r border-slate-200 min-w-[100px]">
                                         <input type="number" className="w-full px-2 py-1.5 text-sm border border-transparent focus:border-blue-400 rounded bg-transparent"
-                                            value={row.conc} onChange={(e) => updateRow(idx, 'conc', e.target.value)} />
+                                            value={row.conc} onChange={(e) => updateUniqueRow(sampleKey, 'conc', e.target.value)} />
                                     </td>
                                     <td className="px-1 py-1 border-r border-slate-200 min-w-[100px]">
                                         <input type="number" className="w-full px-2 py-1.5 text-sm border border-transparent focus:border-blue-400 rounded bg-transparent"
-                                            value={row.volume} onChange={(e) => updateRow(idx, 'volume', e.target.value)} />
+                                            value={row.volume} onChange={(e) => updateUniqueRow(sampleKey, 'volume', e.target.value)} />
                                     </td>
                                     <td className="px-1 py-1 border-r border-slate-200 min-w-[120px]">
                                         <input type="text" className="w-full px-2 py-1.5 text-sm border border-transparent focus:border-blue-400 rounded bg-transparent"
-                                            value={row.buffer} onChange={(e) => updateRow(idx, 'buffer', e.target.value)} />
+                                            value={row.buffer} onChange={(e) => updateUniqueRow(sampleKey, 'buffer', e.target.value)} />
                                     </td>
                                     <td className="px-1 py-1 border-r border-slate-200 min-w-[100px]">
                                         <select className="w-full px-2 py-1.5 text-sm border border-transparent focus:border-blue-400 rounded bg-transparent disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed cursor-not-allowed"
-                                            value={row.ug_ready} onChange={(e) => updateRow(idx, 'ug_ready', e.target.value)} disabled>
+                                            value={row.ug_ready} onChange={(e) => updateUniqueRow(sampleKey, 'ug_ready', e.target.value)} disabled>
                                             <option value="No">No</option>
                                             <option value="Yes">Yes</option>
                                         </select>
                                     </td>
                                     <td className="px-2 py-1 border-r border-slate-200 text-center">
-                                        <button onClick={() => removeRow(idx)} disabled={rows.length === 1} className="text-slate-400 hover:text-red-600 disabled:opacity-50">
+                                        <button onClick={() => removeRow(sampleKey)} disabled={uniqueRows.length === 1} className="text-slate-400 hover:text-red-600 disabled:opacity-50">
                                             <Trash2 size={16} />
                                         </button>
                                     </td>
@@ -344,6 +375,6 @@ export default function Step2Sample({ payload, setPayload }: Props) {
                     </div>
                 )}
             </div>
-        </section>
+        </section >
     );
 }

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../lib/store';
 import type { Order } from '../types';
-import { Plus, FileText, CheckCircle, Clock } from 'lucide-react';
+import { Plus, FileText, CheckCircle, Clock, Trash2 } from 'lucide-react';
 
 export default function Dashboard() {
     const [orders, setOrders] = useState<Order[]>([]);
@@ -52,6 +52,20 @@ export default function Dashboard() {
         }
     };
 
+    const handleDeleteDraft = async (e: React.MouseEvent, orderId: string) => {
+        e.stopPropagation();
+        if (!confirm('Are you sure you want to delete this draft order?')) return;
+
+        try {
+            const { error } = await supabase.from('orders').delete().eq('id', orderId);
+            if (error) throw error;
+            fetchOrders();
+        } catch (error: any) {
+            console.error('Error deleting draft:', error);
+            alert(`Failed to delete draft: ${error.message || JSON.stringify(error)}`);
+        }
+    };
+
     const drafts = orders.filter(o => o.status === 'Draft');
     const submitted = orders.filter(o => o.status !== 'Draft');
 
@@ -70,13 +84,22 @@ export default function Dashboard() {
                     <h1 className="text-2xl font-bold text-slate-900">My Orders</h1>
                     <p className="text-slate-500 mt-1 text-sm">Manage your sequencing manifests and track their status.</p>
                 </div>
-                <button
-                    onClick={createNewOrder}
-                    className="bg-[#0A3D91] hover:bg-blue-800 text-white px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-sm"
-                >
-                    <Plus size={20} />
-                    Create New Order
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => navigate('/template-workflow')}
+                        className="bg-white hover:bg-slate-50 text-[#0A3D91] border border-slate-300 px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-sm"
+                    >
+                        <FileText size={20} />
+                        Create with Template
+                    </button>
+                    <button
+                        onClick={createNewOrder}
+                        className="bg-[#0A3D91] hover:bg-blue-800 text-white px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-sm"
+                    >
+                        <Plus size={20} />
+                        Create New Order
+                    </button>
+                </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8">
@@ -109,12 +132,21 @@ export default function Dashboard() {
                                     <div className="text-xs text-slate-500 mb-4">
                                         Started: {new Date(order.created_at).toLocaleDateString()}
                                     </div>
-                                    <button
-                                        onClick={() => navigate(`/order/${order.id}`)}
-                                        className="text-sm text-[#0A3D91] font-medium hover:underline"
-                                    >
-                                        Continue Editing &rarr;
-                                    </button>
+                                    <div className="flex justify-between items-center mt-2">
+                                        <button
+                                            onClick={() => navigate(`/order/${order.id}`)}
+                                            className="text-sm text-[#0A3D91] font-medium hover:underline"
+                                        >
+                                            Continue Editing &rarr;
+                                        </button>
+                                        <button
+                                            onClick={(e) => handleDeleteDraft(e, order.id)}
+                                            className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded transition-colors"
+                                            title="Delete Draft"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
                                 </div>
                             ))
                         )}

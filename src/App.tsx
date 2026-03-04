@@ -10,11 +10,19 @@ import OrderWizard from './pages/OrderWizard';
 import OrderReview from './pages/OrderReview';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminOrderDetail from './pages/AdminOrderDetail';
+import UpdatePassword from './pages/UpdatePassword';
+import TemplateWorkflow from './pages/TemplateWorkflow';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuthStore();
   if (isLoading) return <div className="flex h-screen items-center justify-center">Loading...</div>;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) {
+    // If we're in the middle of a password recovery, don't immediately bounce to login
+    if (window.location.hash.includes('type=recovery') || window.location.hash.includes('access_token=')) {
+      return <div className="flex h-screen items-center justify-center">Authenticating...</div>;
+    }
+    return <Navigate to="/login" replace />;
+  }
   return <>{children}</>;
 };
 
@@ -38,7 +46,10 @@ function App() {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        window.location.hash = '/update-password';
+      }
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchProfile(session.user.id, session.user.email || '');
@@ -88,8 +99,10 @@ function App() {
         <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/template-workflow" element={<TemplateWorkflow />} />
           <Route path="/order/:id?" element={<OrderWizard />} />
           <Route path="/review/:id" element={<OrderReview />} />
+          <Route path="/update-password" element={<UpdatePassword />} />
         </Route>
 
         <Route element={<AdminRoute><Layout /></AdminRoute>}>

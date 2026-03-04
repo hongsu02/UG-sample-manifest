@@ -1,0 +1,37 @@
+[User Guide for Data Entry]
+
+Please read the following instructions carefully before filling out this template to ensure successful data validation and processing.
+
+1. Row Configuration
+
+Create one row for every library included in your samples.
+
+For example, if a single sample contains 3 different libraries, you must create 3 separate rows for that sample.
+
+2. Well ID
+
+Enter the Well ID ONLY if the container type is a Strip or Plate.
+
+This field can be left blank for individual tubes or other container types.
+
+3. Pooling Logic
+
+If a sample consists of multiple pooled libraries, enter the total count of pooled libraries in the designated column for every row associated with that sample.
+
+Ensure the number of rows created for that sample matches the total pooled library count.
+
+4. Wafer Type & Requirements
+
+Whole: Select this if a single sample occupies an entire wafer.
+
+Partial: Select this if:
+
+The sample shares a single wafer with other samples.
+
+The sample is distributed across multiple wafers.
+
+For Partial types, you MUST fill in the # of Wafer and Target Read columns.
+
+5. Sequencing Capacity (Target Reads)
+
+For samples sharing a wafer (Partial), the sum of Target Reads for all samples assigned to that specific wafer must equal exactly 10,000 M reads.

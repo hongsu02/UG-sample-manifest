@@ -115,6 +115,8 @@ export default function OrderReview() {
     if (loading) return <div className="p-8 text-center text-slate-500">Loading order review...</div>;
     if (!order) return <div className="p-8 text-center text-red-500">Order not found.</div>;
 
+    const uniqueSamples = Array.from(new Map(samples.map(s => [s.sample_id, s])).values());
+
     return (
         <div className="space-y-8 max-w-5xl mx-auto pb-24">
             {/* Non-printable header */}
@@ -208,10 +210,10 @@ export default function OrderReview() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {samples.length > 0 ? samples.map((s, i) => {
+                                {uniqueSamples.length > 0 ? uniqueSamples.map((s, i) => {
                                     const lib = libraries.find(l => l.sample_id === s.sample_id);
                                     return (
-                                        <tr key={i} className={`hover:bg-slate-50 ${i !== samples.length - 1 ? 'border-b border-slate-200' : ''}`}>
+                                        <tr key={i} className={`hover:bg-slate-50 ${i !== uniqueSamples.length - 1 ? 'border-b border-slate-200' : ''}`}>
                                             <td className="px-4 py-2 font-medium text-slate-900 border-r">{s.sample_id}</td>
                                             <td className="px-4 py-2 border-r">{s.sample_type}</td>
                                             <td className="px-4 py-2 border-r">{lib?.library_type || '-'}</td>

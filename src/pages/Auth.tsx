@@ -18,7 +18,10 @@ export default function Auth() {
 
     useEffect(() => {
         if (user) {
-            navigate('/dashboard');
+            // Wait for password recovery to settle so user isn't immediately bounced to dashboard
+            if (!window.location.hash.includes('type=recovery') && !window.location.hash.includes('access_token=')) {
+                navigate('/dashboard');
+            }
         }
     }, [user, navigate]);
 
@@ -49,7 +52,7 @@ export default function Auth() {
                 }
             } else if (mode === 'reset') {
                 const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-                    redirectTo: window.location.origin + window.location.pathname + '#/login'
+                    redirectTo: `${window.location.origin}${window.location.pathname}`
                 });
                 if (resetError) throw resetError;
 
