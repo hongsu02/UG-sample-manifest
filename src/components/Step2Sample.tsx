@@ -189,8 +189,8 @@ export default function Step2Sample({ payload, setPayload }: Props) {
         }
     };
 
-    // Helper Header Cell component
-    const HeaderCell = ({ title, field, actionType }: { title: string, field: keyof Sample, actionType: 'increment' | 'copy' | 'all' | 'none' }) => (
+    // Helper Header Cell renderer
+    const renderHeaderCell = (title: string, field: keyof Sample, actionType: 'increment' | 'copy' | 'all' | 'none') => (
         <th className="px-3 py-3 text-left text-xs font-semibold text-white bg-[#0A3D91] whitespace-nowrap border-r border-[#082f70]">
             <div className="flex items-center justify-between gap-2">
                 <span>{title}</span>
@@ -239,9 +239,9 @@ export default function Step2Sample({ payload, setPayload }: Props) {
                     <thead>
                         <tr>
                             <th className="w-10 bg-[#0A3D91] border-r border-[#082f70]"></th> {/* Row numbers */}
-                            <HeaderCell title="Sample ID" field="sample_id" actionType="increment" />
-                            <HeaderCell title="Container ID" field="container_id" actionType="all" />
-                            <HeaderCell title="Container Type" field="container_type" actionType="copy" />
+                            {renderHeaderCell("Sample ID", "sample_id", "increment")}
+                            {renderHeaderCell("Container ID", "container_id", "all")}
+                            {renderHeaderCell("Container Type", "container_type", "copy")}
 
                             <th className="px-3 py-3 text-left text-xs font-semibold text-white bg-[#0A3D91] whitespace-nowrap border-r border-[#082f70]">
                                 <div className="flex items-center justify-between gap-2">
@@ -254,14 +254,14 @@ export default function Step2Sample({ payload, setPayload }: Props) {
                                 </div>
                             </th>
 
-                            <HeaderCell title="Pooling" field="pooling" actionType="copy" />
-                            <HeaderCell title="Pooled No." field="pulled_no" actionType="copy" />
-                            <HeaderCell title="Species" field="species" actionType="copy" />
-                            <HeaderCell title="Sample Type" field="sample_type" actionType="copy" />
-                            <HeaderCell title="Conc (ng/ul)" field="conc" actionType="copy" />
-                            <HeaderCell title="Volume (ul)" field="volume" actionType="copy" />
-                            <HeaderCell title="Buffer" field="buffer" actionType="copy" />
-                            <HeaderCell title="UG Ready" field="ug_ready" actionType="copy" />
+                            {renderHeaderCell("Pooling", "pooling", "copy")}
+                            {renderHeaderCell("Pooled No.", "pulled_no", "copy")}
+                            {renderHeaderCell("Species", "species", "copy")}
+                            {renderHeaderCell("Sample Type", "sample_type", "copy")}
+                            {renderHeaderCell("Conc (ng/ul)", "conc", "copy")}
+                            {renderHeaderCell("Volume (ul)", "volume", "copy")}
+                            {renderHeaderCell("Buffer", "buffer", "copy")}
+                            {renderHeaderCell("UG Ready", "ug_ready", "copy")}
                             <th className="w-10 bg-[#0A3D91]"></th> {/* Delete */}
                         </tr>
                     </thead>
@@ -271,9 +271,10 @@ export default function Step2Sample({ payload, setPayload }: Props) {
                             const requiresWell = ['Strip', '96 well'].includes(row.container_type);
                             const requiresPulledNo = row.pooling === 'Pooled';
                             const libraryCount = uniqueRowIndices.get(sampleKey)?.length || 1;
+                            const stableKey = row.id || `row-${uniqueRowIndices.get(sampleKey)?.[0] ?? idx}`;
 
                             return (
-                                <tr key={sampleKey} className={idx === 0 ? "bg-amber-50" : "hover:bg-slate-50"}>
+                                <tr key={stableKey} className={idx === 0 ? "bg-amber-50" : "hover:bg-slate-50"}>
                                     <td className="px-3 py-2 text-center text-sm font-medium text-slate-500 border-x border-slate-200">
                                         <div className="flex flex-col items-center gap-1">
                                             <span>{idx === 0 ? 'R1' : idx + 1}</span>
