@@ -1,0 +1,35 @@
+Libraty Type,Library kit
+Native WGS,WGS native gDNA
+DNA/RNA library,RNA-seq
+DNA/RNA library,TruSeq style library
+DNA/RNA library,Nextera style library
+DNA/RNA library,IDT Methyl-Seq
+DNA/RNA library,EM-seq (NEB)
+DNA/RNA library,"IDT xGen(FFPE, cfDNA) "
+DNA/RNA library,low-pass WGS (Twist FlexPrep UHT)
+10X Genomics,10X 3' scRNA v4
+10X Genomics,10x 3' Feature Barcoding v4
+10X Genomics,10X 3' scRNA v3
+10X Genomics,10X 5' scRNA v3
+10X Genomics,10X 5' scRNA v2
+10X Genomics,10x 5' Feature Barcoding v3
+10X Genomics,10x 5' scRNA v3 – CRISPR
+10X Genomics,10x Flex v1 -Gene Expression
+10X Genomics,10x Flex v1 - CRISPR
+10X Genomics,10x Visium HD (human)
+10X Genomics,10x Visium HD (mouse)
+10X Genomics,10x Visium HD (generic)
+10X Genomics,10x Multiome (gene expression)
+10X Genomics,10x Multiome (ATAC)
+10X Genomics,10x ATAC v2
+Parse Bioscience,Parse scRNA v2
+Parse Bioscience,Parse scRNA v3
+Olink Proteomics,Olink Explore HT
+Olink Proteomics,Olink Explore HT (Legacy)
+Olink Proteomics,Olink Explore 3072
+Olink Proteomics,Olink Reveal
+Ancient DNA ,Ancient DNA - double stranded
+Ancient DNA ,Ancient DNA – single stranded
+ppmSeq ,ppmSeq
+ppmSeq ,ppmSeq (Legacy) V5
+Other,Other
