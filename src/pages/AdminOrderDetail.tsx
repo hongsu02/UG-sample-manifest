@@ -124,7 +124,7 @@ export default function AdminOrderDetail() {
         <div className="space-y-6 max-w-[1600px] mx-auto pb-24">
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex items-center gap-4">
-                    <button onClick={() => navigate(-1)} className="text-slate-500 hover:text-[#0A3D91] transition-colors" title="Back to Dashboard">
+                    <button onClick={() => navigate('/admin')} className="text-slate-500 hover:text-[#0A3D91] transition-colors" title="Back to Dashboard">
                         <ArrowLeft size={24} />
                     </button>
                     <div>
@@ -145,6 +145,14 @@ export default function AdminOrderDetail() {
                         <p><strong>Phone:</strong> {order.contact_info?.phone || '-'}</p>
                         <p><strong>Shipping Country:</strong> {order.contact_info?.shippingCountry || '-'}</p>
                     </div>
+                    {order.contact_info?.comments && (
+                        <div className="mt-4 pt-4 border-t border-slate-100">
+                            <h4 className="font-semibold text-sm text-slate-900 mb-2">Comments / Special Instructions</h4>
+                            <div className="bg-slate-50 p-3 rounded text-sm text-slate-700 whitespace-pre-wrap border border-slate-200">
+                                {order.contact_info.comments}
+                            </div>
+                        </div>
+                    )}
                 </div>
                 <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                     <h3 className="font-bold text-[#0A3D91] border-b pb-2 mb-4">Order Status</h3>

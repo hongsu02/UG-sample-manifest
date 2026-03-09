@@ -18,6 +18,7 @@ export interface Step1Info {
     institution: string;
     piName: string;
     phone: string;
+    comments?: string;
 }
 
 interface TemplateParams {
@@ -52,7 +53,7 @@ const COLUMNS = [
     { header: 'Wafer Type', key: 'wafer_type', width: 15 },
     { header: 'Wafer Group', key: 'wafer_group', width: 15 },
     { header: '# of Wafer', key: 'num_wafers', width: 15 },
-    { header: 'Target Read (M Reads)', key: 'target_read', width: 25 },
+    { header: 'Target Read (M Reads) *', key: 'target_read', width: 25 },
 ];
 
 const CONTAINER_TYPES = ['Tube', 'Strip', '96 well'];
@@ -216,6 +217,9 @@ For samples sharing a wafer (Partial), the sum of Target Reads for all samples a
     for (let c = 13; c <= 20; c++) formatHeader(subRow.getCell(c), 'FF2E8B57'); // Sea Green
     for (let c = 21; c <= 24; c++) formatHeader(subRow.getCell(c), 'FFCD5C5C'); // Indian Red
 
+    // Add guidance note to Target Read header
+    subRow.getCell(24).note = '* Target Read (M Reads) = # of Target Reads/cell x # of Target Cells';
+
     // Build the rows (Apply data validation up to 500 rows to allow users to add data freely)
     for (let i = 0; i < 500; i++) {
         const rowIndex = i + 3; // Shifted row index due to super header
@@ -351,7 +355,7 @@ export async function parseAndValidateExcel(file: File, configs: DropdownConfig[
     // 1. Read Step 1 Info
     const infoSheet = workbook.getWorksheet('General Info');
     const step1: Step1Info = {
-        quotation_id: '', payment_method: '', firstName: '', lastName: '', email: '', institution: '', piName: '', phone: ''
+        quotation_id: '', payment_method: '', firstName: '', lastName: '', email: '', institution: '', piName: '', phone: '', comments: ''
     };
 
     if (infoSheet) {
@@ -376,7 +380,10 @@ export async function parseAndValidateExcel(file: File, configs: DropdownConfig[
     let headerError = false;
 
     headerRow.eachCell((cell, colNumber) => {
-        if (cell.text.trim() !== expectedHeaders[colNumber - 1]) headerError = true;
+        // Strip out any trailing asterisk and whitespace to allow tolerance of the helper text header
+        const actualHeader = cell.text.trim().replace(/\s*\*\s*$/, '');
+        const expectedHeader = expectedHeaders[colNumber - 1].replace(/\s*\*\s*$/, '');
+        if (actualHeader !== expectedHeader) headerError = true;
     });
 
     if (headerError) {

@@ -274,10 +274,10 @@ export default function Step2Sample({ payload, setPayload }: Props) {
                             const stableKey = row.id || `row-${uniqueRowIndices.get(sampleKey)?.[0] ?? idx}`;
 
                             return (
-                                <tr key={stableKey} className={idx === 0 ? "bg-amber-50" : "hover:bg-slate-50"}>
+                                <tr key={stableKey} className="hover:bg-slate-50">
                                     <td className="px-3 py-2 text-center text-sm font-medium text-slate-500 border-x border-slate-200">
                                         <div className="flex flex-col items-center gap-1">
-                                            <span>{idx === 0 ? 'R1' : idx + 1}</span>
+                                            <span>{idx + 1}</span>
                                             {libraryCount > 1 && (
                                                 <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full" title={`${libraryCount} sub-libraries`}>
                                                     x{libraryCount}

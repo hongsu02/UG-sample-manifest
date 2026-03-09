@@ -7,6 +7,7 @@ import Step1Contact from '../components/Step1Contact';
 import Step2Sample from '../components/Step2Sample';
 import Step3Library from '../components/Step3Library';
 import Step4Sequencing from '../components/Step4Sequencing';
+import Step5Comment from '../components/Step5Comment';
 import { Save, FileCheck } from 'lucide-react';
 
 export default function OrderWizard() {
@@ -159,7 +160,8 @@ export default function OrderWizard() {
                 <Step1Contact payload={payload} setPayload={setPayload} />
                 <Step2Sample payload={payload} setPayload={setPayload} />
                 <Step3Library payload={payload} setPayload={setPayload} />
-                <Step4Sequencing payload={payload} setPayload={setPayload} onSubmit={handleReviewNavigate} />
+                <Step4Sequencing payload={payload} setPayload={setPayload} />
+                <Step5Comment payload={payload} setPayload={setPayload} onSubmit={handleReviewNavigate} disabled={!step4Valid || saving} />
             </div>
         </div>
     );

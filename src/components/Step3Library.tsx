@@ -171,9 +171,9 @@ export default function Step3Library({ payload, setPayload }: Props) {
                                     const libNo = libNoCounter[sId];
 
                                     return (
-                                        <tr key={row.id || idx} className={idx === 0 ? "bg-amber-50" : "hover:bg-slate-50"}>
+                                        <tr key={row.id || idx} className="hover:bg-slate-50">
                                             <td className="px-3 py-2 text-center text-sm font-medium text-slate-500 border-x border-slate-200">
-                                                {idx === 0 ? 'R1' : idx + 1}
+                                                {idx + 1}
                                             </td>
                                             <td className="px-3 py-2 text-sm text-slate-700 border-r border-slate-200 font-medium">
                                                 {row.sample_id}

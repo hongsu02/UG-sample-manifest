@@ -11,7 +11,7 @@ export default function TemplateWorkflow() {
 
     // Template Form State
     const [step1Info, setStep1Info] = useState<Step1Info>({
-        quotation_id: '', payment_method: '', firstName: '', lastName: '', email: '', institution: '', piName: '', phone: ''
+        quotation_id: '', payment_method: '', firstName: '', lastName: '', email: '', institution: '', piName: '', phone: '', comments: ''
     });
 
     // DB Configs for Parser
@@ -97,7 +97,8 @@ export default function TemplateWorkflow() {
                         email: data.step1.email,
                         institution: data.step1.institution,
                         piName: data.step1.piName,
-                        phone: data.step1.phone
+                        phone: data.step1.phone,
+                        comments: data.step1.comments
                     }
                 }])
                 .select()
@@ -184,6 +185,10 @@ export default function TemplateWorkflow() {
                                 <div className="col-span-2"><label className="block text-xs font-semibold text-slate-500 uppercase">Email</label><input type="email" className="w-full mt-1 border-b border-slate-300 py-1 bg-transparent focus:outline-none focus:border-[#0A3D91]" value={step1Info.email} onChange={e => handleStep1Change('email', e.target.value)} /></div>
                                 <div><label className="block text-xs font-semibold text-slate-500 uppercase">Institution</label><input type="text" className="w-full mt-1 border-b border-slate-300 py-1 bg-transparent focus:outline-none focus:border-[#0A3D91]" value={step1Info.institution} onChange={e => handleStep1Change('institution', e.target.value)} /></div>
                                 <div><label className="block text-xs font-semibold text-slate-500 uppercase">PI Name</label><input type="text" className="w-full mt-1 border-b border-slate-300 py-1 bg-transparent focus:outline-none focus:border-[#0A3D91]" value={step1Info.piName} onChange={e => handleStep1Change('piName', e.target.value)} /></div>
+                                <div className="col-span-2 mt-2">
+                                    <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Comments / Special Instructions</label>
+                                    <textarea className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" rows={3} placeholder="Optional notes for your order..." value={step1Info.comments || ''} onChange={e => handleStep1Change('comments', e.target.value)} />
+                                </div>
                             </div>
 
                             <button onClick={handleGenerate} className="w-full flex justify-center items-center gap-2 bg-[#0A3D91] hover:bg-blue-800 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-sm mt-4">

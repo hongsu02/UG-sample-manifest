@@ -196,6 +196,15 @@ export default function OrderReview() {
                     </div>
                 </div>
 
+                {order.contact_info?.comments && (
+                    <div className="mb-10 text-sm">
+                        <h3 className="font-bold text-slate-900 mb-2 border-b pb-1">Comments / Special Instructions</h3>
+                        <div className="bg-slate-50 p-4 rounded border border-slate-200 text-slate-700 whitespace-pre-wrap">
+                            {order.contact_info.comments}
+                        </div>
+                    </div>
+                )}
+
                 <div className="mb-8">
                     <h3 className="text-lg font-bold text-[#0A3D91] mb-4">Sample & Library Summary</h3>
                     {/* Integrated layout table mock */}

@@ -5,12 +5,11 @@ import { Equal, X, AlertCircle } from 'lucide-react';
 interface Props {
     payload: OrderPayload;
     setPayload: React.Dispatch<React.SetStateAction<OrderPayload>>;
-    onSubmit?: () => void;
 }
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
-export default function Step4Sequencing({ payload, setPayload, onSubmit }: Props) {
+export default function Step4Sequencing({ payload, setPayload }: Props) {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -153,7 +152,7 @@ export default function Step4Sequencing({ payload, setPayload, onSubmit }: Props
                                 <HeaderCell title="Wafer Type" field="wafer_type" />
                                 <HeaderCell title="Wafer Group" field="wafer_group" customCss="bg-blue-900 border-l border-blue-950 text-blue-50" />
                                 <HeaderCell title="# of Wafer" field="num_wafers" customCss="bg-blue-900 text-blue-50" />
-                                <HeaderCell title="Target Read (M Reads)" field="target_read" />
+                                <HeaderCell title="Target Read (M Reads) *" field="target_read" />
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200">
@@ -161,9 +160,9 @@ export default function Step4Sequencing({ payload, setPayload, onSubmit }: Props
                                 const isWhole = row.wafer_type === 'Whole';
 
                                 return (
-                                    <tr key={row.id || idx} className={idx === 0 ? "bg-amber-50" : "hover:bg-slate-50"}>
+                                    <tr key={row.id || idx} className="hover:bg-slate-50">
                                         <td className="px-3 py-2 text-center text-sm font-medium text-slate-500 border-x border-slate-200">
-                                            {idx === 0 ? 'R1' : idx + 1}
+                                            {idx + 1}
                                         </td>
                                         <td className="px-3 py-2 text-sm text-slate-700 border-r border-slate-200 font-medium">
                                             {row.sample_id}
@@ -205,20 +204,11 @@ export default function Step4Sequencing({ payload, setPayload, onSubmit }: Props
                         <p>{error}</p>
                     </div>
                 )}
-            </div>
-
-            <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-end items-center z-10 sticky bottom-0">
-                {rows.length > 0 && (
-                    <button
-                        type="button"
-                        onClick={onSubmit}
-                        disabled={!!error}
-                        className="bg-green-600 hover:bg-green-700 text-white px-8 py-2.5 rounded-lg font-bold text-sm transition-colors shadow-sm disabled:bg-slate-300 disabled:cursor-not-allowed flex items-center gap-2"
-                        title={error ? "Please fix validation errors before submitting" : ""}
-                    >
-                        Review & Submit
-                    </button>
-                )}
+                <div className="mt-4 flex justify-end">
+                    <p className="text-sm italic text-slate-500">
+                        * Target Read (M Reads) = # of Target Reads/cell x # of Target Cells
+                    </p>
+                </div>
             </div>
         </section>
     );
