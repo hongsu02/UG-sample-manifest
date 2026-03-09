@@ -95,14 +95,33 @@ export default function Step2Sample({ payload, setPayload }: Props) {
     // Header Actions
     const copyDown = (field: keyof Sample) => {
         if (rows.length <= 1) return;
-        const valueToCopy = rows[0][field];
-        const newRows = rows.map((row) => ({ ...row, [field]: valueToCopy }));
+        const valueToCopy = rows[0][field] as string;
+        const newRows = rows.map((row) => {
+            const newRow = { ...row, [field]: valueToCopy };
+            if (field === 'container_type' && !['Strip', '96 well'].includes(valueToCopy)) {
+                newRow.well_id = '';
+            }
+            if (field === 'pooling' && valueToCopy !== 'Pooled') {
+                newRow.pulled_no = '';
+            }
+            if (field === 'sample_type') {
+                newRow.ug_ready = ['Converted UG Library', 'UG Library'].includes(valueToCopy) ? 'Yes' : 'No';
+            }
+            return newRow;
+        });
         setPayload(prev => ({ ...prev, samples: newRows }));
     };
 
     const clearColumn = (field: keyof Sample) => {
         if (rows.length <= 1) return;
-        const newRows = rows.map((row, i) => (i === 0 ? row : { ...row, [field]: '' }));
+        const newRows = rows.map((row, i) => {
+            if (i === 0) return row;
+            const newRow = { ...row, [field]: '' };
+            if (field === 'container_type') newRow.well_id = '';
+            if (field === 'pooling') newRow.pulled_no = '';
+            if (field === 'sample_type') newRow.ug_ready = 'No';
+            return newRow;
+        });
         setPayload(prev => ({ ...prev, samples: newRows }));
     };
 
